@@ -1,5 +1,6 @@
 import scrapy
 import json
+import re
 
 from items import TescoItems
 
@@ -9,7 +10,7 @@ class TescoSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'https://www.tesco.com/groceries/en-GB/shop/household/kitchen-roll-and-tissues/all',
+            'https://www.tesco.com/groceries/en-GB/shop/household/kitchen-roll-and-tissues/all'
             'https://www.tesco.com/groceries/en-GB/shop/pets/cat-food-and-accessories/all'
         ]
         for url in urls:
@@ -17,24 +18,26 @@ class TescoSpider(scrapy.Spider):
 
     def parse_pagination(self, response):
         urls_raw = response.xpath("//script[@type='application/ld+json']").get()
-        urls_clean = json.loads(urls_raw[35:-9])
-        for i in urls_clean[2]['itemListElement']:
-            yield scrapy.Request(url=i['url'], callback=self.parse_review)
+        urls_clean = re.findall(r'https://www.tesco.com/groceries/en-GB/products/\d+', urls_raw)
+        for url in urls_clean:
+            yield scrapy.Request(url=url, callback=self.parse_info)
 
         next_page = response.xpath("//link[@rel='next']/@href").get()
         if next_page is not None:
             yield scrapy.Request(next_page, callback=self.parse_pagination)
 
-    def parse_info(self, response, reviews, response_origin):
+    def parse_info(self, response):
         item = TescoItems()
-        info_raw = response.xpath("//script[@type='application/ld+json']").get()
-        info_clean = json.loads(info_raw[35:-9])
-        item['product_id'] = int(info_clean[2]['sku'])
-        item['product_url'] = response_origin
-        item['image'] = info_clean[2]['image']
-        item['title'] = info_clean[2]['name']
-        item['category'] = info_clean[2]['@type']
-        item['price'] = float(info_clean[2]['offers']['price'])
+        info_raw = response.xpath("//script[@type='application/ld+json']/text()").get()
+        info_clean = json.loads("".join(info_raw))
+        for i in info_clean:
+            if i.get('sku', None) is not None:
+                item['product_id'] = int(i['sku'])
+                item['product_url'] = response.url
+                item['image'] = i['image']
+                item['title'] = i['name']
+                item['category'] = i['@type']
+                item['price'] = float(i['offers']['price'])
         description = response.xpath("//div[@id='product-marketing']//li/text()").getall()
         description_1 = response.xpath("//div[@id='brand-marketing']//li/text()").getall()
         description_2 = response.xpath("//div[@id='other-information']//li/text()").getall()
@@ -47,7 +50,6 @@ class TescoSpider(scrapy.Spider):
         item['return_address'] = "".join(return_address)
         net_contents = response.xpath("//div[@id='net-contents']//p/text()").getall()
         item['net_contents'] = "".join(net_contents)
-        item['reviews'] = reviews
         bought_next_products = {}
         count_bought_next = len(
             response.xpath("//div[@class='recommender__wrapper']/div[@class='product-tile-wrapper']")
@@ -64,14 +66,15 @@ class TescoSpider(scrapy.Spider):
             'url': 'https://www.tesco.com' + url
             }
         item['bought_next_prodicts'] = bought_next_products
-        return item
+        return self.parse_review(response, item)
 
-    def parse_review(self, response):
-        reviews = response.meta.get('reviews', {})
+    def parse_review(self, response, item=None):
         count_total = response.meta.get('count_total', 0)
-        response_origin = response.meta.get('response_origin', None)
-        if response_origin is None:
-            response_origin = response.url
+        if item is not None:
+            item = item
+            item['reviews'] = {}
+        else:
+            item = response.meta.get('item')
         count_reviews = len(
             response.xpath(
                 "//div[@id='review-data']//article[@class='content']//section[@class='sc-dNLxif dUMnMc']"
@@ -93,16 +96,14 @@ class TescoSpider(scrapy.Spider):
                 stars = int("".join(filter(str.isdigit, response.xpath(stars).get())))
             else:
                 stars = ''
-            reviews[i+count_total] = {
+            item['reviews'][i+count_total] = {
             'title': response.xpath(title).get(),
             'author': response.xpath(author).get(),
             'date': response.xpath(date).get(),
             'text': response.xpath(text).get(),
             'stars': stars,
             }
-        next_page = response.xpath(
-            "//a[@class='sc-ktHwxA iYjymA styled__TextButtonLink-ipdqot-0 GMOgz']/@href"
-            ).get()
+        next_page = response.xpath("//a[contains(@href,'active-tab=product-reviews')]/@href").get()
         if next_page is not None:
             count_total += count_reviews
             next_page = 'https://www.tesco.com' + next_page
@@ -110,11 +111,9 @@ class TescoSpider(scrapy.Spider):
                 next_page,
                 callback=self.parse_review,
                 meta={
-                'reviews': reviews,
+                'item': item,
                 'count_total': count_total,
-                'response_origin': response_origin
                 }
                 )
         else:
-            yield self.parse_info(response, reviews, response_origin)
-        
+            yield item

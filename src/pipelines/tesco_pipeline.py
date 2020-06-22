@@ -1,12 +1,10 @@
 from scrapy.exporters import JsonItemExporter
 
 
-class TescoPipeline(object):
-
-    file = None
+class TescoPipeline:
 
     def open_spider(self, spider):
-        self.file = open('item.json', 'w')
+        self.file = open('item.json', 'wb')
         self.exporter = JsonItemExporter(self.file)
         self.exporter.start_exporting()
 
