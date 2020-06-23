@@ -10,7 +10,7 @@ class TescoSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'https://www.tesco.com/groceries/en-GB/shop/household/kitchen-roll-and-tissues/all'
+            'https://www.tesco.com/groceries/en-GB/shop/household/kitchen-roll-and-tissues/all',
             'https://www.tesco.com/groceries/en-GB/shop/pets/cat-food-and-accessories/all'
         ]
         for url in urls:
