@@ -55,7 +55,8 @@ There are primarily three ways to commit and influence the semantic version:
 
 ```shell
 feat: 881229 added webex_bot to jenkins_dev
-fix!: 896703 handle timeout error during commands execution   # Commit message with ! to draw attention to breaking change
+fix!: 896703 handle timeout error during commands execution   
+# Commit message with ! to draw attention to breaking change
 ```
 
 * `chore`: other changes that don't modify source or test files (will not increment version)
