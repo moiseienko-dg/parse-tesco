@@ -26,14 +26,14 @@ git checkout -b update/896703_update_http_traffic_file
 
 Create a new branch, ensuring the name is meaningful and uses the allowed prefixes. Allowed prefixes include:
 
-* `$USER/`
+* `update/`
 * `bugfix/`
 * `feature/`
 
 ```shell
-git checkout -b bugfix/update                      # horrible
-git checkout -b bugfix/fix-acl-key-val             # better
-git checkout -b bugfix/FWaaS-123-fix-acl-key-val   # best
+git checkout -b bugfix/update                  # horrible
+git checkout -b bugfix/handle_timeout          # better
+git checkout -b bugfix/896703_handle_timeout   # best
 
 # make sure your branch is up to date with main
 git fetch origin main
