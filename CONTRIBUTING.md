@@ -19,9 +19,9 @@ Consider you want to make submit a bugfix into the `main` branch. First you'll w
 Then you'll checkout the desired target branch and create your new branch off of it.
 
 ```shell
-git fetch origin
-git checkout main
-git merge origin/main
+git checkout master
+git pull
+git checkout -b update/896703_update_http_traffic_file
 ```
 
 Create a new branch, ensuring the name is meaningful and uses the allowed prefixes. Allowed prefixes include:
