@@ -49,15 +49,14 @@ Once you have your branch, you can start committing changes, but **you must foll
 
 There are primarily three ways to commit and influence the semantic version:
 
-* `fix`: a commit of the type fix patches a bug in your codebase (this correlates with PATCH in Semantic Versioning).
-* `feat`: a commit of the type feat introduces a new feature to the codebase (this correlates with MINOR in Semantic Versioning).
-* BREAKING CHANGE: a commit that has a footer BREAKING CHANGE:, or appends a `!` after the type/scope,
-  introduces a breaking API change (correlating with MAJOR in Semantic Versioning). 
-  A BREAKING CHANGE can be part of commits of any type. See examples below for clarity.
+* `fix`: a commit of the type fix patches a bug in your codebase
+* `feat`: a commit of the type feat introduces a new feature to the codebase
+* `update`: a code change that neither fixes a bug nor adds a feature
 
-Types other than `fix:` and `feat:` are allowed, 
-for example [@commitlint/config-conventional (based on the Angular convention)](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional)
-recommends the following:
+```shell
+update: 881229 added webex_bot to jenkins_dev
+fix!: 896703 handle timeout error during commands execution   # Commit message with ! to draw attention to breaking change
+```
 
 * `chore`: other changes that don't modify source or test files (will not increment version)
 * `refactor`: a code change that neither fixes a bug nor adds a feature
