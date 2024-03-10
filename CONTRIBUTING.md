@@ -52,6 +52,8 @@ There are primarily three ways to commit and influence the semantic version:
 * `fix`: a commit of the type fix patches a bug in your codebase
 * `feat`: a commit of the type feat introduces a new feature to the codebase
 * `update`: a code change that neither fixes a bug nor adds a feature
+* `docs`: documentation only changes
+* `ci`: changes to our CI configuration files and scripts
 
 ```shell
 feat: 881229 added webex_bot to jenkins_dev
