@@ -54,7 +54,7 @@ There are primarily three ways to commit and influence the semantic version:
 * `update`: a code change that neither fixes a bug nor adds a feature
 
 ```shell
-update: 881229 added webex_bot to jenkins_dev
+feat: 881229 added webex_bot to jenkins_dev
 fix!: 896703 handle timeout error during commands execution   # Commit message with ! to draw attention to breaking change
 ```
 
